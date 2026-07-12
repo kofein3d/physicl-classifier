@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.cube-container {
+    width: 180px;
+    height: 180px;
+    perspective: 1800px;
+    margin: 24px auto 44px;
+    cursor: grab;
+}
+.cube-container:active {
+    cursor: grabbing;
+}
+
+.cube {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+.cube-face {
+    position: absolute;
+    width: 162px;
+    height: 162px;
+    border: 2px solid #3b82f6;
+    background: rgba(59, 130, 246, 0.2);
+    color: #1e3a8a;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 162px;
+    user-select: none;
+    backface-visibility: visible;
+}
+
+[data-dark="true"] .cube-face {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(59, 130, 246, 0.25);
+    border-color: #6aacfc;
+}
+
+.front  { transform: rotateY(0deg)    translateZ(81px); }
+.back   { transform: rotateY(180deg)  translateZ(81px); }
+.right  { transform: rotateY(90deg)   translateZ(81px); }
+.left   { transform: rotateY(-90deg)  translateZ(81px); }
+.top    { transform: rotateX(90deg)   translateZ(81px); }
+.bottom { transform: rotateX(-90deg)  translateZ(81px) rotateZ(180deg) scaleX(-1); }
+
+.lookup-list::-webkit-scrollbar {
+    width: 10px;
+}
+.lookup-list::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 0 6px 6px 0;
+}
+.lookup-list::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 3px;
+}
+.lookup-list::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+@keyframes cube-appear {
+    from { opacity: 0; transform: translateY(8px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+.cube-appear {
+    animation: cube-appear 0.28s ease-out;
+}
+
+/* Дерево категорий: прозрачный жёлоб, виден только ползунок (стрелки — свои кнопки в React,
+   ::-webkit-scrollbar-button в актуальных браузерах не рендерится, толку от CSS тут нет) */
+.tree-scroll::-webkit-scrollbar {
+    width: 14px;
+}
+.tree-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+.tree-scroll::-webkit-scrollbar-thumb {
+    background-color: #5a5a5a;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+.tree-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: #707070;
+}
+
+.pivot-point {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: red;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 3px red, 0 0 6px red;
+}
