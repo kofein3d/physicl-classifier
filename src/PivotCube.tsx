@@ -71,7 +71,7 @@ const parsePivotPositions = (pivot: string): FacePos[] => {
   return [{ face: 'bottom', x: '50%', y: '50%' }]
 }
 
-export const PivotCube = ({ pivot, isDark }: { pivot: string; isDark: boolean }) => {
+export const PivotCube = ({ pivot, isDark, searchText }: { pivot: string; isDark: boolean; searchText?: string }) => {
   const positions = parsePivotPositions(pivot)
   const faces = [
     { name: 'front',  label: 'Front'  },
@@ -145,7 +145,9 @@ export const PivotCube = ({ pivot, isDark }: { pivot: string; isDark: boolean })
           ))}
         </div>
       </div>
-      <div className={`mt-4 h-9 w-full rounded-lg ${isDark ? 'bg-[#404040]' : 'bg-gray-100'}`} />
+      <div className={`mt-4 h-9 w-full rounded-lg flex items-center justify-center px-3 text-base font-normal truncate ${isDark ? 'bg-[#404040] text-gray-200' : 'bg-gray-100 text-gray-700'}`}>
+        {searchText}
+      </div>
     </div>
   )
 }

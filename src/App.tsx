@@ -499,6 +499,8 @@ export function App({ apiKeys, isDark, onAddKey, onRemoveKey }: AppProps) {
   const [hasClassified, setHasClassified] = useState(false)
   const [showApiMenu, setShowApiMenu] = useState(false)
   const [newKeyInput, setNewKeyInput] = useState('')
+  const [showKeyGuide, setShowKeyGuide] = useState(false)
+  const [guideKeyInput, setGuideKeyInput] = useState('')
 
   async function fileToGenerativePart(file: File) {
     const MAX_PX = 1024
@@ -578,6 +580,10 @@ export function App({ apiKeys, isDark, onAddKey, onRemoveKey }: AppProps) {
 
   const handleClassify = async () => {
     if (!imageFile) { setError('Please select an image first.'); return }
+    if (apiKeys.length === 0) {
+      setShowKeyGuide(true)
+      return
+    }
 
     setEverExpanded(true)
     setHasClassified(true)
@@ -928,6 +934,64 @@ ${searchList}`
         </div>
       </div>
       </div>
+
+      {showKeyGuide && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60" onClick={() => setShowKeyGuide(false)}>
+          <div
+            onClick={e => e.stopPropagation()}
+            className={`w-full max-w-md rounded-2xl shadow-xl p-6 ${isDark ? 'bg-[#333333] text-gray-200' : 'bg-white text-gray-800'}`}
+          >
+            <h2 className="text-lg font-bold mb-2">One quick step before we start</h2>
+            <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              This tool uses Google's Gemini AI to recognize objects in photos. To use it, you need a free personal access key — think of it like a password that lets this tool use Google's AI on your behalf. It takes about a minute to get one, and it's free.
+            </p>
+            <ol className={`text-sm mb-4 space-y-2 list-decimal list-inside ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <li>
+                Open{' '}
+                <a
+                  href="https://aistudio.google.com/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:underline"
+                >
+                  aistudio.google.com/apikey
+                </a>
+              </li>
+              <li>Sign in with your Google account (or create one, it's free)</li>
+              <li>Click "Create API key"</li>
+              <li>Copy the key and paste it below</li>
+            </ol>
+            <form
+              onSubmit={e => {
+                e.preventDefault()
+                if (!guideKeyInput.trim()) return
+                onAddKey(guideKeyInput.trim())
+                setGuideKeyInput('')
+                setShowKeyGuide(false)
+              }}
+            >
+              <input
+                type="password"
+                value={guideKeyInput}
+                onChange={e => setGuideKeyInput(e.target.value)}
+                placeholder="AIza..."
+                autoComplete="off"
+                className={`w-full border rounded-lg px-4 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm ${isDark ? 'bg-[#444] border-gray-600 text-gray-100 placeholder-gray-500' : 'bg-white border-gray-300 text-gray-900'}`}
+              />
+              <button
+                type="submit"
+                disabled={!guideKeyInput.trim()}
+                className="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                Save and continue
+              </button>
+            </form>
+            <p className={`text-xs mt-3 text-center ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+              Your key is stored locally in your browser only
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

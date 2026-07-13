@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { App } from './App'
-import { ApiKeySetup } from './ApiKeySetup'
 import './index.css'
 
 function loadKeys(): string[] {
@@ -33,10 +32,6 @@ function Root() {
     const next = apiKeys.filter((_, i) => i !== index)
     setApiKeys(next)
     saveKeys(next)
-  }
-
-  if (apiKeys.length === 0) {
-    return <ApiKeySetup isDark={isDark} onKeySet={addKey} />
   }
 
   return (

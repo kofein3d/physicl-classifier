@@ -4,6 +4,10 @@ import { PivotCube } from './PivotCube'
 
 // code -> UID (постоянная часть, не зависит от pivot-data.json)
 const CODE_TO_UID = new Map(ITEMS.map(it => [it.code, it.uid]))
+// code -> поисковые названия (EN/RU/FR) для нижнего блока под кубом
+const CODE_TO_SEARCH = new Map(ITEMS.map(it => [it.code, it.search]))
+
+type Lang = 'en' | 'ru' | 'fr'
 
 interface Entry { type: string; pivot: string; uid: string }
 
@@ -45,6 +49,7 @@ export function PivotPage({ isDark }: PivotPageProps) {
   const [uidText, setUidText] = useState('')
   const [open, setOpen] = useState(false)
   const [highlighted, setHighlighted] = useState(0)
+  const [lang, setLang] = useState<Lang>('en')
 
   const codeQuery = codeText.trim().toUpperCase()
   const resolvedByCode = codeQuery ? entries.find(e => e.type === codeQuery) : undefined
@@ -85,6 +90,20 @@ export function PivotPage({ isDark }: PivotPageProps) {
             Pivot lookup
             {dataStale && <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#ef4444', display: 'inline-block', flexShrink: 0 }} />}
           </h1>
+          <div className="flex rounded-lg overflow-hidden border border-gray-600">
+            {(['en', 'fr', 'ru'] as Lang[]).map(l => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={`px-2 py-1 text-xs font-bold transition-colors ${
+                  lang === l
+                    ? (isDark ? 'text-black' : 'bg-blue-600 text-white')
+                    : (isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:bg-gray-100')
+                }`}
+                style={isDark && lang === l ? { backgroundColor: '#c8963c' } : undefined}
+              >{l.toUpperCase()}</button>
+            ))}
+          </div>
         </div>
 
         <div className="relative">
@@ -159,7 +178,7 @@ export function PivotPage({ isDark }: PivotPageProps) {
           <div style={{ overflow: 'hidden' }}>
             {lastEntry && (
               <div key={lastEntry.type} className={cubeVisible ? 'cube-appear' : ''}>
-                <PivotCube pivot={lastEntry.pivot} isDark={isDark} />
+                <PivotCube pivot={lastEntry.pivot} isDark={isDark} searchText={CODE_TO_SEARCH.get(lastEntry.type)?.[lang] ?? ''} />
               </div>
             )}
           </div>
