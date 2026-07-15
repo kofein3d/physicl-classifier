@@ -388,8 +388,8 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
   // absolute относительно ближайшего relative-предка (обёртка вокруг карточки) — приклеено
   // к левому краю карточки, двигается вместе с ней, не участвует в её центрировании
   return (
-    <div className="absolute top-0 bottom-0 w-[390px] flex flex-col p-0" style={{ right: 'calc(100% + 24px)' }}>
-      <p className={`shrink-0 text-sm font-semibold uppercase tracking-wide mb-3 pl-[26px] ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Categories<span className="font-mono normal-case ml-[210px]">{ITEMS.length}</span></p>
+    <div className="absolute top-0 bottom-0 w-[480px] flex flex-col p-0" style={{ right: 'calc(100% + 24px)' }}>
+      <p className={`shrink-0 flex justify-between text-sm font-semibold uppercase tracking-wide mb-3 pl-[26px] pr-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}><span>Categories</span><span className="font-mono normal-case">{ITEMS.length}</span></p>
       <ul className="tree-scroll overflow-y-auto pr-5 space-y-0.5">
         {CATEGORIES.map(c => {
           const isOpen = expanded.has(c.id)
@@ -438,11 +438,17 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
                         </div>
                         {isSubOpen && (
                           <ul className="ml-4 border-l border-dashed pl-2 mt-0.5 mb-0.5" style={{ borderColor: isDark ? '#3a3a3a' : '#eee' }}>
-                            {codes.map(it => (
-                              <li key={it.code} className="text-sm font-mono truncate px-1.5 py-px" style={{ color: '#ff8edf' }} title={it.code}>
-                                {it.code}
-                              </li>
-                            ))}
+                            {codes.map(it => {
+                              // цвет Q-кода: none=красный, doubtful=жёлтый, ok=обычный (серый)
+                              const hfColor = it.hfStatus === 'none' ? '#ea0000' : it.hfStatus === 'doubtful' ? '#e0b000' : (isDark ? '#888' : '#999')
+                              const hfText = it.hfId || 'none'
+                              return (
+                                <li key={it.code} className="flex items-center gap-2 text-sm font-mono px-1.5 py-px" title={it.code}>
+                                  <span className="flex-1 truncate" style={{ color: '#ff8edf' }}>{it.code}</span>
+                                  <span className="shrink-0 text-xs" style={{ color: hfColor }} title={`Wiki: ${hfText}`}>{hfText}</span>
+                                </li>
+                              )
+                            })}
                           </ul>
                         )}
                       </li>
