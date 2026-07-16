@@ -60,3 +60,15 @@ jobs:
         run: gh workflow run deploy.yml
         env:
           GH_TOKEN: ${{ github.token }}
+
+      # Уведомление на почту о результате (успех И провал). Переиспользует send_email.mjs
+      # (Gmail SMTP). Нужен секрет EMAIL_CONFIG = содержимое email.config.json ({from,to,appPassword}).
+      - name: Notify by email
+        if: always()
+        env:
+          EMAIL_CONFIG: ${{ secrets.EMAIL_CONFIG }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$EMAIL_CONFIG" ]; then echo "нет секрета EMAIL_CONFIG — письмо пропущено"; exit 0; fi
+          printf '%s' "$EMAIL_CONFIG" > scripts/email.config.json
+          node scripts/notify.mjs "${{ job.status }}"

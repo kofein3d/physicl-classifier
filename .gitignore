@@ -3,3 +3,6 @@ dist
 .env
 .env.local
 run-dev.bat
+
+# секрет для уведомлений (собирается в CI из EMAIL_CONFIG)
+scripts/email.config.json
