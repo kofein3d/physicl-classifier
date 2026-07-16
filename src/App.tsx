@@ -439,8 +439,11 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
                         {isSubOpen && (
                           <ul className="ml-4 border-l border-dashed pl-2 mt-0.5 mb-0.5" style={{ borderColor: isDark ? '#3a3a3a' : '#eee' }}>
                             {codes.map(it => {
-                              // цвет Q-кода: none=красный, doubtful=жёлтый, ok=обычный (серый)
-                              const hfColor = it.hfStatus === 'none' ? '#ea0000' : it.hfStatus === 'doubtful' ? '#e0b000' : (isDark ? '#888' : '#999')
+                              // цвет Q-кода: none=красный, doubtful=жёлтый, exact=зелёный(в объект), climbed/иное=серый(в родителя)
+                              const hfColor = it.hfStatus === 'none' ? '#ea0000'
+                                : it.hfStatus === 'doubtful' ? '#e0b000'
+                                : it.hfStatus === 'exact' ? (isDark ? '#4bbf6f' : '#2e9e57')
+                                : (isDark ? '#888' : '#999')
                               const hfText = it.hfId || 'none'
                               return (
                                 <li key={it.code} className="flex items-center gap-2 text-sm font-mono px-1.5 py-px" title={it.code}>
