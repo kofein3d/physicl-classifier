@@ -1,0 +1,61 @@
+name: Update pivot data
+
+# Тянет свежий pivot из nfinite → public/pivot-data.json → коммит → деплой.
+# Триггер — НАДЁЖНЫЙ: Cloudflare Cron → repository_dispatch (тип update-pivots), а не хлипкий
+# GitHub schedule (его расписание задерживает/пропускает под нагрузкой). См. worker в ../pipeline-cron.
+# Токен nfinite берётся у Worker'а model-replacer (пароль nfinite в CI не нужен).
+# Нужен секрет WORKER_KEY в этом репозитории (Settings → Secrets → Actions).
+
+on:
+  repository_dispatch:
+    types: [update-pivots]   # шлёт Cloudflare Cron Worker
+  workflow_dispatch:          # ручной запуск из вкладки Actions
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Get nfinite token from Worker
+        id: token
+        run: |
+          TOKEN=$(curl -sf -H "X-Viser-Key: ${{ secrets.WORKER_KEY }}" https://model-replacer.kofein3d.workers.dev)
+          if [ -z "$TOKEN" ]; then echo "Worker returned empty token"; exit 1; fi
+          echo "::add-mask::$TOKEN"
+          echo "value=$TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Fetch pivot data from nfinite
+        env:
+          NFINITE_TOKEN: ${{ steps.token.outputs.value }}
+        run: node scripts/generate-pivot-json.mjs public/pivot-data.json
+
+      - name: Commit if changed
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/pivot-data.json
+          if git diff --cached --quiet; then
+            echo "No changes in pivot data"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "chore: update pivot data"
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger deploy
+        if: steps.commit.outputs.changed == 'true'
+        run: gh workflow run deploy.yml
+        env:
+          GH_TOKEN: ${{ github.token }}
