@@ -25,7 +25,9 @@ export function PivotPage({ isDark }: PivotPageProps) {
   const [dataStale, setDataStale] = useState(false)
 
   useEffect(() => {
-    fetch('./pivot-data.json')
+    // cache-busting (?t=…) + no-store: обходим кеш браузера И CDN GitHub Pages,
+    // иначе пользователь видит старый pivot до 10 мин и без Ctrl+F5 не обновит.
+    fetch('./pivot-data.json?t=' + Date.now(), { cache: 'no-store' })
       .then(r => r.json())
       .then((map: Record<string, string | null>) => {
         const { _updated, ...rest } = map as Record<string, string | null>
