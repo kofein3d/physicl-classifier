@@ -244,12 +244,12 @@ export interface Item {
   uid: string
   cat: string
   sub: string
-  pivot: Pivot
-  conf: Conf
+  pivot: string          // значения из Pivot; string, чтобы TS не упирался в TS2590 на большом массиве
+  conf: string           // "H" | "M" | "L"
   search: { en: string; ru: string; fr: string }
   tags?: string[]
-  hfId?: string                                              // Wikidata Q-код (wiki code); "" = none
-  hfStatus?: "none" | "doubtful" | "climbed" | "exact"       // none=красный, doubtful=жёлтый, climbed=серый(родитель), exact=зелёный(объект)
+  hfId?: string          // Wikidata Q-код (wiki code); "" = none
+  hfStatus?: string      // none=красный, doubtful=жёлтый, climbed=серый(родитель), exact=зелёный(объект)
 }
 export const ITEMS: Item[] = [
   // ACCESSORIES
@@ -3297,4 +3297,37 @@ export const ITEMS: Item[] = [
   { code: "SELF_SERVICE_CAR_WASH", hfId: "Q1139861", hfStatus: "exact", uid: "849167", cat: "URBAN", sub: "URBAN.UTILITY", pivot: "S1", conf: "L", search: { en: "self service car wash", ru: "автомойка самообслуживания", fr: "station de lavage libre-service" }, tags: ["TRANSPORT", "CLEANING"] },
   { code: "TRENCH_DRAIN", hfId: "Q3998866", hfStatus: "exact", uid: "286515", cat: "URBAN", sub: "URBAN.UTILITY", pivot: "S6", conf: "M", search: { en: "trench drain channel", ru: "дренажный лоток траншея", fr: "caniveau de drainage" }, tags: ["CONSTRUCTION"] },
   { code: "WATER_TOWER", hfId: "Q274153", hfStatus: "exact", uid: "376666", cat: "URBAN", sub: "URBAN.UTILITY", pivot: "A", conf: "H", search: { en: "water tower", ru: "водонапорная башня", fr: "château d eau" }, tags: ["CONSTRUCTION"] },
+  // NEW 2026-07-16 (Wiki codes pending)
+  { code: "WORKBENCH_CABINET_SET", hfId: "", hfStatus: "none", uid: "319342", cat: "TOOLS", sub: "TOOLS.WORKSHOP", pivot: "E3", conf: "M", search: { en: "workbench cabinet", ru: "тумба для верстака", fr: "meuble d'atelier" } },
+  { code: "SIM_RACING_HANDBRAKE", hfId: "", hfStatus: "none", uid: "444025", cat: "GAMES", sub: "GAMES.VIDEO", pivot: "A", conf: "H", search: { en: "sim racing handbrake", ru: "ручник для симрейсинга", fr: "frein à main de simracing" } },
+  { code: "VR_CONTROLLER", hfId: "", hfStatus: "none", uid: "320258", cat: "GAMES", sub: "GAMES.VIDEO", pivot: "C1", conf: "H", search: { en: "virtual reality controller", ru: "контроллер VR", fr: "contrôleur VR" } },
+  { code: "BASE_CABINET", hfId: "", hfStatus: "none", uid: "427344", cat: "FURNITURE", sub: "FURNITURE.CASE", pivot: "E3", conf: "H", search: { en: "base cabinet", ru: "напольный шкаф", fr: "meuble bas" } },
+  { code: "SNK_BASE_CABINET", hfId: "", hfStatus: "none", uid: "806201", cat: "FURNITURE", sub: "FURNITURE.CASE", pivot: "E3", conf: "H", search: { en: "sink base cabinet", ru: "шкаф под мойку", fr: "meuble sous évier" } },
+  { code: "HANGING_SHOE_ORGANIZER", hfId: "", hfStatus: "none", uid: "804132", cat: "FURNITURE", sub: "FURNITURE.STORAGE", pivot: "A", conf: "H", search: { en: "hanging shoe organizer", ru: "подвесной органайзер для обуви", fr: "organiseur à chaussures suspendu" } },
+  { code: "OPEN_WARDROBE", hfId: "", hfStatus: "none", uid: "319637", cat: "FURNITURE", sub: "FURNITURE.CASE", pivot: "E3", conf: "H", search: { en: "open wardrobe", ru: "открытый гардероб", fr: "armoire ouverte" } },
+  { code: "WALL_DRESSING", hfId: "", hfStatus: "none", uid: "618275", cat: "FURNITURE", sub: "FURNITURE.STORAGE", pivot: "E11", conf: "M", search: { en: "wall-mounted wardrobe", ru: "настенная гардеробная", fr: "penderie murale" } },
+  { code: "ROLLING_MEDIA_STAND", hfId: "", hfStatus: "none", uid: "117373", cat: "FURNITURE", sub: "FURNITURE.CASE", pivot: "E3", conf: "M", search: { en: "rolling media stand", ru: "медиатумба на колёсах", fr: "meuble multimédia à roulettes" } },
+  { code: "SINK_TRAP", hfId: "", hfStatus: "none", uid: "912272", cat: "CONSTRUCTION", sub: "CONSTRUCTION.PLUMBING", pivot: "A", conf: "H", search: { en: "sink drain trap", ru: "сифон для раковины", fr: "siphon de lavabo" } },
+  { code: "WALL_AIR_PURIFIER", hfId: "", hfStatus: "none", uid: "352862", cat: "APPLIANCES", sub: "APPLIANCES.CLIMATE", pivot: "E11", conf: "H", search: { en: "wall air purifier", ru: "настенный очиститель воздуха", fr: "purificateur d'air mural" } },
+  { code: "GARMENT_RACK_SHELF", hfId: "", hfStatus: "none", uid: "434907", cat: "FURNITURE", sub: "FURNITURE.STORAGE", pivot: "E3", conf: "H", search: { en: "garment rack with shelf", ru: "вешалка-стойка с полкой", fr: "portant à vêtements avec étagère" } },
+  { code: "CORNER_GARMENT_RACK_SHELF", hfId: "", hfStatus: "none", uid: "160413", cat: "FURNITURE", sub: "FURNITURE.STORAGE", pivot: "C4", conf: "H", search: { en: "corner garment rack", ru: "угловая вешалка-стойка", fr: "portant à vêtements d'angle" } },
+  { code: "WAFFLE_MAKER_PLATE", hfId: "", hfStatus: "none", uid: "586100", cat: "APPLIANCES", sub: "APPLIANCES.SMALL_KITCHEN", pivot: "S1", conf: "M", search: { en: "waffle maker plate", ru: "пластина для вафельницы", fr: "plaque de gaufrier" } },
+  { code: "VEGETABLE_SLICER", hfId: "", hfStatus: "none", uid: "884102", cat: "KITCHEN", sub: "KITCHEN.KNIVES", pivot: "C4", conf: "H", search: { en: "vegetable slicer", ru: "овощерезка", fr: "coupe-légumes" } },
+  { code: "BICEPS_CURL_MACHINE", hfId: "", hfStatus: "none", uid: "273471", cat: "SPORT", sub: "SPORT.FITNESS", pivot: "E3", conf: "H", search: { en: "biceps curl machine", ru: "тренажёр для бицепса", fr: "machine à biceps" } },
+  { code: "VIDEO_GAME_CONSOLE", hfId: "", hfStatus: "none", uid: "758865", cat: "GAMES", sub: "GAMES.VIDEO", pivot: "A", conf: "H", search: { en: "video game console", ru: "игровая приставка", fr: "console de jeux vidéo" } },
+  { code: "GRIDDLE", hfId: "", hfStatus: "none", uid: "521890", cat: "NATURE", sub: "NATURE.PICNIC_BBQ", pivot: "S1", conf: "M", search: { en: "cooking griddle plate", ru: "гриль-плита", fr: "plancha" } },
+  { code: "FOOD_PROCESSOR", hfId: "", hfStatus: "none", uid: "183524", cat: "APPLIANCES", sub: "APPLIANCES.SMALL_KITCHEN", pivot: "C4", conf: "H", search: { en: "food processor", ru: "кухонный комбайн", fr: "robot culinaire" } },
+  { code: "TABLETOP_GRIDDLE", hfId: "", hfStatus: "none", uid: "630421", cat: "APPLIANCES", sub: "APPLIANCES.SMALL_KITCHEN", pivot: "S1", conf: "H", search: { en: "electric tabletop griddle", ru: "настольная электрогриль-плита", fr: "plancha électrique de table" } },
+  { code: "ELECTRIC_GRILL", hfId: "", hfStatus: "none", uid: "951227", cat: "NATURE", sub: "NATURE.PICNIC_BBQ", pivot: "S1", conf: "M", search: { en: "electric grill", ru: "электрический гриль", fr: "gril électrique" } },
+  { code: "3X3_PUZZLE_CUBE", hfId: "", hfStatus: "none", uid: "648099", cat: "GAMES", sub: "GAMES.CONSTRUCTION", pivot: "S1", conf: "H", search: { en: "twisty puzzle cube", ru: "головоломка-кубик 3x3", fr: "casse-tête cube 3x3" } },
+  { code: "TABLETOP_HUMIDIFIER", hfId: "", hfStatus: "none", uid: "110610", cat: "APPLIANCES", sub: "APPLIANCES.CLIMATE", pivot: "A", conf: "H", search: { en: "tabletop humidifier", ru: "настольный увлажнитель воздуха", fr: "humidificateur de table" } },
+  { code: "FREESTANDING_RANGE", hfId: "", hfStatus: "none", uid: "993466", cat: "APPLIANCES", sub: "APPLIANCES.LARGE", pivot: "E3", conf: "H", search: { en: "freestanding kitchen range", ru: "отдельностоящая плита", fr: "cuisinière indépendante" } },
+  { code: "COUNTERTOP_BLENDER", hfId: "", hfStatus: "none", uid: "648279", cat: "APPLIANCES", sub: "APPLIANCES.SMALL_KITCHEN", pivot: "A", conf: "H", search: { en: "countertop blender", ru: "стационарный блендер", fr: "blender de comptoir" } },
+  { code: "ELECTRIC_HAND_MIXER", hfId: "", hfStatus: "none", uid: "791965", cat: "APPLIANCES", sub: "APPLIANCES.SMALL_KITCHEN", pivot: "A", conf: "H", search: { en: "electric hand mixer", ru: "электрический ручной миксер", fr: "batteur à main électrique" } },
+  { code: "COMPACT_DIGITAL_CAMERA", hfId: "", hfStatus: "none", uid: "235380", cat: "ELECTRONICS", sub: "ELECTRONICS.AV", pivot: "E3", conf: "H", search: { en: "compact digital camera", ru: "компактный цифровой фотоаппарат", fr: "appareil photo numérique compact" } },
+  { code: "POCKET_GIMBAL_CAMERA", hfId: "", hfStatus: "none", uid: "892115", cat: "ELECTRONICS", sub: "ELECTRONICS.AV", pivot: "C1", conf: "H", search: { en: "handheld gimbal camera", ru: "камера на стабилизаторе", fr: "caméra sur stabilisateur" } },
+  { code: "GARMENT_RACK", hfId: "", hfStatus: "none", uid: "961023", cat: "FURNITURE", sub: "FURNITURE.STORAGE", pivot: "E3", conf: "H", search: { en: "garment rack", ru: "вешалка-стойка", fr: "portant à vêtements" } },
+  { code: "GAS_REGULATOR", hfId: "", hfStatus: "none", uid: "930565", cat: "TOOLS", sub: "TOOLS.WORKSHOP", pivot: "S1", conf: "H", search: { en: "welding gas regulator", ru: "газовый редуктор (сварочный)", fr: "détendeur de gaz de soudage" } },
+  { code: "GAS_REGULATOR_HOSE", hfId: "", hfStatus: "none", uid: "384880", cat: "TOOLS", sub: "TOOLS.WORKSHOP", pivot: "S1", conf: "H", search: { en: "welding gas hose", ru: "шланг газового редуктора", fr: "tuyau de gaz de soudage" } },
+  { code: "ROTARY_EGG_BEATER", hfId: "", hfStatus: "none", uid: "617601", cat: "KITCHEN", sub: "KITCHEN.COOKWARE", pivot: "C3", conf: "H", search: { en: "rotary egg beater", ru: "ручной венчик-мутовка", fr: "batteur à œufs rotatif" } },
 ]
