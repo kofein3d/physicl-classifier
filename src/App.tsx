@@ -6,6 +6,9 @@ type Lang = 'en' | 'fr' | 'ru'
 
 // id категории -> имена на 3 языках (для кнопок и показа результата)
 const CAT_NAME = new Map(CATEGORIES.map(c => [c.id, c.name]))
+// id подкатегории (L2) -> имена; код -> item (для поиска и панели-пояснения)
+const SUB_NAME = new Map(CATEGORIES.flatMap(c => c.subs.map(s => [s.id, s.name])))
+const ITEM_BY_CODE = new Map(ITEMS.map(it => [it.code, it]))
 
 // id подкатегории -> коды в ней (для третьего уровня дерева категорий)
 const ITEMS_BY_SUB = new Map<string, Item[]>()
@@ -377,24 +380,53 @@ interface CategoryTreeProps {
   onSelectCategory: (id: string | null) => void
 }
 
+// цвет Wiki-кода по статусу (none=красный, doubtful=жёлтый, exact=зелёный, climbed/иное=серый)
+const hfColorOf = (status: string | undefined, isDark: boolean) =>
+  status === 'none' ? '#ea0000'
+    : status === 'doubtful' ? '#e0b000'
+      : status === 'exact' ? (isDark ? '#4bbf6f' : '#2e9e57')
+        : (isDark ? '#888' : '#999')
+
 const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: CategoryTreeProps) => {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [query, setQuery] = useState('')
+  const [selectedCode, setSelectedCode] = useState<string | null>(null)
   const toggle = (id: string) => setExpanded(prev => {
     const next = new Set(prev)
     next.has(id) ? next.delete(id) : next.add(id)
     return next
   })
 
+  // Фильтр: строго "Q"+цифры (Q15148) → по Wiki-коду (hfId); иначе → подстрока по буквенному коду.
+  // При фильтре узлы авто-развёрнуты и видны только совпавшие листья.
+  const q = query.trim()
+  const filtering = q.length > 0
+  const isWiki = /^Q\d+$/.test(q)
+  const matchItem = (it: Item) => !filtering || (isWiki ? (it.hfId || '') === q : it.code.includes(q))
+  const sel = selectedCode ? ITEM_BY_CODE.get(selectedCode) : null
+
   // absolute относительно ближайшего relative-предка (обёртка вокруг карточки) — приклеено
   // к левому краю карточки, двигается вместе с ней, не участвует в её центрировании
   return (
     <div className="absolute top-0 bottom-0 w-[480px] flex flex-col p-0" style={{ right: 'calc(100% + 24px)' }}>
-      <p className={`shrink-0 flex justify-between text-sm font-semibold uppercase tracking-wide mb-3 pl-[26px] pr-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}><span>Categories</span><span className="font-mono normal-case">{ITEMS.length}</span></p>
-      <ul className="tree-scroll overflow-y-auto pr-5 space-y-0.5">
+      <input
+        value={query}
+        onChange={e => { const v = e.target.value.toUpperCase(); setQuery(v); if (!v) setSelectedCode(null) }}
+        placeholder="Search: CODE or Wiki-code…"
+        autoComplete="off"
+        className={`shrink-0 mb-8 ml-[10px] mr-5 h-8 rounded px-2 text-sm font-mono border focus:outline-none focus:ring-1 ${isDark ? 'bg-[#262626] border-gray-600 text-gray-200 placeholder-gray-600 focus:ring-[#c8963c]' : 'bg-white border-gray-300 text-gray-800 placeholder-gray-400 focus:ring-blue-400'}`}
+      />
+      <p className={`shrink-0 flex justify-between text-sm font-semibold uppercase tracking-wide mb-5 pl-[10px] pr-10 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}><span>Categories</span><span className="font-mono normal-case">{ITEMS.length}</span></p>
+      <ul className="tree-scroll overflow-y-auto pr-5 space-y-0.5 flex-1">
         {CATEGORIES.map(c => {
-          const isOpen = expanded.has(c.id)
+          // подкатегории с (отфильтрованными) элементами; при фильтре пустые убираем
+          const subData = c.subs
+            .map(s => { const all = ITEMS_BY_SUB.get(s.id) ?? []; return { s, items: filtering ? all.filter(matchItem) : all } })
+            .filter(x => !filtering || x.items.length > 0)
+          if (filtering && subData.length === 0) return null
+          const isOpen = filtering ? true : expanded.has(c.id)
           const isSelected = selectedCategory === c.id
-          const catCount = c.subs.reduce((sum, s) => sum + (ITEMS_BY_SUB.get(s.id)?.length ?? 0), 0)
+          const catCount = filtering ? subData.reduce((n, x) => n + x.items.length, 0) : c.subs.reduce((sum, s) => sum + (ITEMS_BY_SUB.get(s.id)?.length ?? 0), 0)
           return (
             <li key={c.id}>
               <div className={`flex items-center gap-1 rounded px-1.5 py-1 text-sm transition-colors ${
@@ -404,8 +436,9 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
               }`}>
                 <button
                   onClick={() => toggle(c.id)}
+                  disabled={filtering}
                   aria-label={isOpen ? 'Collapse' : 'Expand'}
-                  className={`shrink-0 w-4 text-center text-base font-bold transition-transform ${isOpen ? 'rotate-90' : ''}`}
+                  className={`shrink-0 w-4 text-center text-base font-bold transition-transform disabled:opacity-40 ${isOpen ? 'rotate-90' : ''}`}
                   style={{ color: '#ffcc6f' }}
                 >▸</button>
                 <button
@@ -418,37 +451,38 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
               </div>
               {isOpen && (
                 <ul className="ml-5 border-l border-dashed pl-2 mt-0.5 mb-1 space-y-0.5" style={{ borderColor: isDark ? '#444' : '#e5e7eb' }}>
-                  {c.subs.map(s => {
-                    const isSubOpen = expanded.has(s.id)
-                    const codes = ITEMS_BY_SUB.get(s.id) ?? []
+                  {subData.map(({ s, items }) => {
+                    const isSubOpen = filtering ? true : expanded.has(s.id)
                     return (
                       <li key={s.id}>
                         <div className="flex items-center gap-1 px-1.5 py-0.5">
                           <button
                             onClick={() => toggle(s.id)}
                             aria-label={isSubOpen ? 'Collapse' : 'Expand'}
-                            disabled={codes.length === 0}
+                            disabled={filtering || items.length === 0}
                             className={`shrink-0 w-4 text-center text-base font-bold transition-transform disabled:opacity-0 ${isSubOpen ? 'rotate-90' : ''}`}
                             style={{ color: '#7dbeff' }}
                           >▸</button>
                           <span className="text-sm truncate flex-1" style={{ color: '#7dbeff' }} title={s.name[lang]}>
                             {s.name[lang]}
                           </span>
-                          <span className="shrink-0 text-xs font-mono" style={{ color: '#7dbeff' }}>{codes.length}</span>
+                          <span className="shrink-0 text-xs font-mono" style={{ color: '#7dbeff' }}>{items.length}</span>
                         </div>
                         {isSubOpen && (
                           <ul className="ml-4 border-l border-dashed pl-2 mt-0.5 mb-0.5" style={{ borderColor: isDark ? '#3a3a3a' : '#eee' }}>
-                            {codes.map(it => {
-                              // цвет Q-кода: none=красный, doubtful=жёлтый, exact=зелёный(в объект), climbed/иное=серый(в родителя)
-                              const hfColor = it.hfStatus === 'none' ? '#ea0000'
-                                : it.hfStatus === 'doubtful' ? '#e0b000'
-                                : it.hfStatus === 'exact' ? (isDark ? '#4bbf6f' : '#2e9e57')
-                                : (isDark ? '#888' : '#999')
+                            {items.map(it => {
                               const hfText = it.hfId || 'none'
+                              const isCodeSel = selectedCode === it.code
                               return (
-                                <li key={it.code} className="flex items-center gap-2 text-sm font-mono px-1.5 py-px" title={it.code}>
-                                  <span className="flex-1 truncate" style={{ color: '#ff8edf' }}>{it.code}</span>
-                                  <span className="shrink-0 text-xs" style={{ color: hfColor }} title={`Wiki: ${hfText}`}>{hfText}</span>
+                                <li key={it.code}>
+                                  <button
+                                    onClick={() => setSelectedCode(isCodeSel ? null : it.code)}
+                                    title={it.code}
+                                    className={`w-full flex items-center gap-2 text-sm font-mono px-1.5 py-px rounded text-left transition-colors ${isCodeSel ? (isDark ? 'bg-[#4a4a4a]' : 'bg-gray-200') : (isDark ? 'hover:bg-[#3a3a3a]' : 'hover:bg-gray-100')}`}
+                                  >
+                                    <span className="flex-1 truncate" style={{ color: '#ff8edf' }}>{it.code}</span>
+                                    <span className="shrink-0 text-xs" style={{ color: hfColorOf(it.hfStatus, isDark) }} title={`Wiki: ${hfText}`}>{hfText}</span>
+                                  </button>
                                 </li>
                               )
                             })}
@@ -463,6 +497,18 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
           )
         })}
       </ul>
+
+      {filtering && sel && (
+        <div className={`shrink-0 mt-2 ml-[10px] mr-5 p-3 rounded border text-sm ${isDark ? 'bg-[#2a2a2a] border-[#c8963c] text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-700'}`}>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="font-mono font-semibold truncate" style={{ color: '#ff8edf' }}>{sel.code}</span>
+            <button onClick={() => setSelectedCode(null)} className="shrink-0 ml-2 text-xs opacity-50 hover:opacity-100">✕</button>
+          </div>
+          <div className="text-xs opacity-70 mb-2">{CAT_NAME.get(sel.cat)?.[lang]} › {SUB_NAME.get(sel.sub)?.[lang]}</div>
+          <div className="text-sm">{sel.search[lang]}</div>
+          <div className="mt-2 text-xs font-mono">Wiki: <span style={{ color: hfColorOf(sel.hfStatus, isDark) }}>{sel.hfId || 'none'}</span></div>
+        </div>
+      )}
     </div>
   )
 }
@@ -757,7 +803,7 @@ ${searchList}`
                   ))}
                 </div>
               <div className="flex items-center gap-2">
-                <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>v1.11</span>
+                <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>v2.02</span>
                 <a
                   href="./pivot.html"
                   className={`text-xs underline px-1 transition-colors ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}
