@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, type ChangeEvent, type DragEvent } from 'react'
 import { GoogleGenAI, Type } from '@google/genai'
-import { CATEGORIES, ITEMS, type Item } from './categories'
+import { CATEGORIES, ITEMS, WIKI_INFO, type Item } from './categories'
 
 type Lang = 'en' | 'fr' | 'ru'
 
@@ -498,7 +498,7 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
         })}
       </ul>
 
-      {filtering && sel && (
+      {sel && (
         <div className={`shrink-0 mt-2 ml-[10px] mr-5 p-3 rounded border text-sm ${isDark ? 'bg-[#2a2a2a] border-[#c8963c] text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-700'}`}>
           <div className="flex items-center justify-between mb-1.5">
             <span className="font-mono font-semibold truncate" style={{ color: '#ff8edf' }}>{sel.code}</span>
@@ -507,6 +507,13 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
           <div className="text-xs opacity-70 mb-2">{CAT_NAME.get(sel.cat)?.[lang]} › {SUB_NAME.get(sel.sub)?.[lang]}</div>
           <div className="text-sm">{sel.search[lang]}</div>
           <div className="mt-2 text-xs font-mono">Wiki: <span style={{ color: hfColorOf(sel.hfStatus, isDark) }}>{sel.hfId || 'none'}</span></div>
+          {/* C/ имя Wiki-сущности и D/ её определение (англ, из WIKI_INFO) — только если запись есть */}
+          {sel.hfId && WIKI_INFO[sel.hfId]?.name && (
+            <div className="mt-1 text-sm font-medium">{WIKI_INFO[sel.hfId]!.name}</div>
+          )}
+          {sel.hfId && WIKI_INFO[sel.hfId]?.def && (
+            <div className="mt-0.5 text-xs opacity-70">{WIKI_INFO[sel.hfId]!.def}</div>
+          )}
         </div>
       )}
     </div>
