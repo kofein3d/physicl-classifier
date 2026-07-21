@@ -381,7 +381,7 @@ interface CategoryTreeProps {
 }
 
 // цвет Wiki-кода по статусу (none=красный, doubtful=жёлтый, exact=зелёный, climbed/иное=серый)
-const hfColorOf = (status: string | undefined, isDark: boolean) =>
+const wikiColorOf = (status: string | undefined, isDark: boolean) =>
   status === 'none' ? '#ea0000'
     : status === 'doubtful' ? '#e0b000'
       : status === 'exact' ? (isDark ? '#4bbf6f' : '#2e9e57')
@@ -397,12 +397,12 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
     return next
   })
 
-  // Фильтр: строго "Q"+цифры (Q15148) → по Wiki-коду (hfId); иначе → подстрока по буквенному коду.
+  // Фильтр: строго "Q"+цифры (Q15148) → по Wiki-коду (wikiId); иначе → подстрока по буквенному коду.
   // При фильтре узлы авто-развёрнуты и видны только совпавшие листья.
   const q = query.trim()
   const filtering = q.length > 0
   const isWiki = /^Q\d+$/.test(q)
-  const matchItem = (it: Item) => !filtering || (isWiki ? (it.hfId || '') === q : it.code.includes(q))
+  const matchItem = (it: Item) => !filtering || (isWiki ? (it.wikiId || '') === q : it.code.includes(q))
   const sel = selectedCode ? ITEM_BY_CODE.get(selectedCode) : null
 
   // absolute относительно ближайшего relative-предка (обёртка вокруг карточки) — приклеено
@@ -471,7 +471,7 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
                         {isSubOpen && (
                           <ul className="ml-4 border-l border-dashed pl-2 mt-0.5 mb-0.5" style={{ borderColor: isDark ? '#3a3a3a' : '#eee' }}>
                             {items.map(it => {
-                              const hfText = it.hfId || 'none'
+                              const wikiText = it.wikiId || 'none'
                               const isCodeSel = selectedCode === it.code
                               return (
                                 <li key={it.code}>
@@ -481,7 +481,7 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
                                     className={`w-full flex items-center gap-2 text-sm font-mono px-1.5 py-px rounded text-left transition-colors ${isCodeSel ? (isDark ? 'bg-[#4a4a4a]' : 'bg-gray-200') : (isDark ? 'hover:bg-[#3a3a3a]' : 'hover:bg-gray-100')}`}
                                   >
                                     <span className="flex-1 truncate" style={{ color: '#ff8edf' }}>{it.code}</span>
-                                    <span className="shrink-0 text-xs" style={{ color: hfColorOf(it.hfStatus, isDark) }} title={`Wiki: ${hfText}`}>{hfText}</span>
+                                    <span className="shrink-0 text-xs" style={{ color: wikiColorOf(it.wikiStatus, isDark) }} title={`Wiki: ${wikiText}`}>{wikiText}</span>
                                   </button>
                                 </li>
                               )
@@ -506,13 +506,13 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
           </div>
           <div className="text-xs opacity-70 mb-2">{CAT_NAME.get(sel.cat)?.[lang]} › {SUB_NAME.get(sel.sub)?.[lang]}</div>
           <div className="text-sm">{sel.search[lang]}</div>
-          <div className="mt-2 text-xs font-mono">Wiki: <span style={{ color: hfColorOf(sel.hfStatus, isDark) }}>{sel.hfId || 'none'}</span></div>
+          <div className="mt-2 text-xs font-mono">Wiki: <span style={{ color: wikiColorOf(sel.wikiStatus, isDark) }}>{sel.wikiId || 'none'}</span></div>
           {/* C/ имя Wiki-сущности и D/ её определение (англ, из WIKI_INFO) — только если запись есть */}
-          {sel.hfId && WIKI_INFO[sel.hfId]?.name && (
-            <div className="mt-1 text-sm font-medium">{WIKI_INFO[sel.hfId]!.name}</div>
+          {sel.wikiId && WIKI_INFO[sel.wikiId]?.name && (
+            <div className="mt-1 text-sm font-medium">{WIKI_INFO[sel.wikiId]!.name}</div>
           )}
-          {sel.hfId && WIKI_INFO[sel.hfId]?.def && (
-            <div className="mt-0.5 text-xs opacity-70">{WIKI_INFO[sel.hfId]!.def}</div>
+          {sel.wikiId && WIKI_INFO[sel.wikiId]?.def && (
+            <div className="mt-0.5 text-xs opacity-70">{WIKI_INFO[sel.wikiId]!.def}</div>
           )}
         </div>
       )}
@@ -810,7 +810,7 @@ ${searchList}`
                   ))}
                 </div>
               <div className="flex items-center gap-2">
-                <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>v2.02</span>
+                <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>v2.03</span>
                 <a
                   href="./pivot.html"
                   className={`text-xs underline px-1 transition-colors ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}
