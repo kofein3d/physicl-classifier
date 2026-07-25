@@ -414,7 +414,7 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
         onChange={e => { const v = e.target.value.toUpperCase(); setQuery(v); if (!v) setSelectedCode(null) }}
         placeholder="Search: CODE or Wiki-code…"
         autoComplete="off"
-        className={`shrink-0 mb-8 ml-[10px] mr-5 h-8 rounded px-2 text-sm font-mono border focus:outline-none focus:ring-1 ${isDark ? 'bg-[#262626] border-gray-600 text-gray-200 placeholder-gray-600 focus:ring-[#c8963c]' : 'bg-white border-gray-300 text-gray-800 placeholder-gray-400 focus:ring-blue-400'}`}
+        className={`shrink-0 mb-8 ml-[10px] mr-5 h-8 rounded px-2 text-sm font-mono border focus:outline-none focus:ring-1 ${isDark ? 'bg-[#222222] border-gray-600 text-gray-200 placeholder-gray-600 focus:ring-[#c8963c]' : 'bg-white border-gray-300 text-gray-800 placeholder-gray-400 focus:ring-blue-400'}`}
       />
       <p className={`shrink-0 flex justify-between text-sm font-semibold uppercase tracking-wide mb-5 pl-[10px] pr-10 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}><span>Categories</span><span className="font-mono normal-case">{ITEMS.length}</span></p>
       <ul className="tree-scroll overflow-y-auto pr-5 space-y-0.5 flex-1">
@@ -499,19 +499,19 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
       </ul>
 
       {sel && (
-        <div className={`shrink-0 mt-2 ml-[10px] mr-5 p-3 rounded border text-sm ${isDark ? 'bg-[#2a2a2a] border-[#c8963c] text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-700'}`}>
+        <div className={`shrink-0 mt-1 ml-[10px] mr-5 p-3 rounded-lg border text-base ${isDark ? 'bg-[#222222] border-[#c8963c] text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-700'}`}>
           <div className="flex items-center justify-between mb-1.5">
             <span className="font-mono font-semibold truncate" style={{ color: '#ff8edf' }}>{sel.code}</span>
-            {/* Pivot — точка привязки объекта; "null" в данных значит «не задан» */}
-            <span className="shrink-0 ml-2 text-xs font-mono opacity-70">
-              Pivot: <span className="font-semibold" style={{ color: '#ffcc6f' }}>{sel.pivot && sel.pivot !== 'null' ? sel.pivot : '—'}</span>
-            </span>
-            <button onClick={() => setSelectedCode(null)} className="shrink-0 ml-2 text-xs opacity-50 hover:opacity-100">✕</button>
+            <button onClick={() => setSelectedCode(null)} className="shrink-0 ml-2 text-sm opacity-50 hover:opacity-100">✕</button>
           </div>
-          <div className="text-xs opacity-70 mb-2">{CAT_NAME.get(sel.cat)?.[lang]} › {SUB_NAME.get(sel.sub)?.[lang]}</div>
-          <div className="text-sm">{sel.search[lang]}</div>
+          {/* Pivot — точка привязки объекта; "null" в данных значит «не задан» */}
+          <div className="text-sm font-mono mb-1.5 opacity-70">
+            Pivot: <span className="font-semibold" style={{ color: '#ffcc6f' }}>{sel.pivot && sel.pivot !== 'null' ? sel.pivot : '—'}</span>
+          </div>
+          <div className="text-sm opacity-70 mb-2">{CAT_NAME.get(sel.cat)?.[lang]} › {SUB_NAME.get(sel.sub)?.[lang]}</div>
+          <div className="text-base">{sel.search[lang]}</div>
           {/* Q-код — ссылка на страницу сущности в Wikidata (новая вкладка) */}
-          <div className="mt-2 text-xs font-mono">Wiki: {sel.wikiId ? (
+          <div className="mt-2 text-sm font-mono">Wiki: {sel.wikiId ? (
             <a
               href={`https://www.wikidata.org/wiki/${sel.wikiId}`}
               target="_blank"
@@ -525,10 +525,10 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
           )}</div>
           {/* C/ имя Wiki-сущности и D/ её определение (англ, из WIKI_INFO) — только если запись есть */}
           {sel.wikiId && WIKI_INFO[sel.wikiId]?.name && (
-            <div className="mt-1 text-sm font-medium">{WIKI_INFO[sel.wikiId]!.name}</div>
+            <div className="mt-1 text-base font-medium">{WIKI_INFO[sel.wikiId]!.name}</div>
           )}
           {sel.wikiId && WIKI_INFO[sel.wikiId]?.def && (
-            <div className="mt-0.5 text-xs opacity-70">{WIKI_INFO[sel.wikiId]!.def}</div>
+            <div className="mt-0.5 text-sm opacity-70">{WIKI_INFO[sel.wikiId]!.def}</div>
           )}
         </div>
       )}
