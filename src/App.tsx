@@ -502,11 +502,27 @@ const CategoryTree = ({ lang, isDark, selectedCategory, onSelectCategory }: Cate
         <div className={`shrink-0 mt-2 ml-[10px] mr-5 p-3 rounded border text-sm ${isDark ? 'bg-[#2a2a2a] border-[#c8963c] text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-700'}`}>
           <div className="flex items-center justify-between mb-1.5">
             <span className="font-mono font-semibold truncate" style={{ color: '#ff8edf' }}>{sel.code}</span>
+            {/* Pivot — точка привязки объекта; "null" в данных значит «не задан» */}
+            <span className="shrink-0 ml-2 text-xs font-mono opacity-70">
+              Pivot: <span className="font-semibold" style={{ color: '#ffcc6f' }}>{sel.pivot && sel.pivot !== 'null' ? sel.pivot : '—'}</span>
+            </span>
             <button onClick={() => setSelectedCode(null)} className="shrink-0 ml-2 text-xs opacity-50 hover:opacity-100">✕</button>
           </div>
           <div className="text-xs opacity-70 mb-2">{CAT_NAME.get(sel.cat)?.[lang]} › {SUB_NAME.get(sel.sub)?.[lang]}</div>
           <div className="text-sm">{sel.search[lang]}</div>
-          <div className="mt-2 text-xs font-mono">Wiki: <span style={{ color: wikiColorOf(sel.wikiStatus, isDark) }}>{sel.wikiId || 'none'}</span></div>
+          {/* Q-код — ссылка на страницу сущности в Wikidata (новая вкладка) */}
+          <div className="mt-2 text-xs font-mono">Wiki: {sel.wikiId ? (
+            <a
+              href={`https://www.wikidata.org/wiki/${sel.wikiId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={`Open ${sel.wikiId} on Wikidata`}
+              className="underline decoration-dotted hover:decoration-solid"
+              style={{ color: wikiColorOf(sel.wikiStatus, isDark) }}
+            >{sel.wikiId}</a>
+          ) : (
+            <span style={{ color: wikiColorOf(sel.wikiStatus, isDark) }}>none</span>
+          )}</div>
           {/* C/ имя Wiki-сущности и D/ её определение (англ, из WIKI_INFO) — только если запись есть */}
           {sel.wikiId && WIKI_INFO[sel.wikiId]?.name && (
             <div className="mt-1 text-sm font-medium">{WIKI_INFO[sel.wikiId]!.name}</div>
@@ -810,7 +826,7 @@ ${searchList}`
                   ))}
                 </div>
               <div className="flex items-center gap-2">
-                <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>v2.10</span>
+                <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>v2.11</span>
                 <a
                   href="./pivot.html"
                   className={`text-xs underline px-1 transition-colors ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}
